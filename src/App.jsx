@@ -30,7 +30,7 @@ function App() {
   const loadData = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/data.csv')
+      const response = await fetch('./data.csv')
       const csvText = await response.text()
       
       Papa.parse(csvText, {

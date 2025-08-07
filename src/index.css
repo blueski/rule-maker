@@ -1,0 +1,168 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root {
+    height: 100%;
+    font-feature-settings: 'cv11', 'ss01';
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: auto;
+    -moz-osx-font-smoothing: auto;
+  }
+  
+  body {
+    @apply font-sans bg-primary-50 text-primary-900;
+    line-height: 1.6;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-primary-900 font-semibold tracking-tighter;
+    line-height: 1.2;
+  }
+  
+  h1 { @apply text-3xl font-bold; }
+  h2 { @apply text-2xl font-semibold; }
+  h3 { @apply text-xl font-semibold; }
+  h4 { @apply text-lg font-medium; }
+}
+
+@layer components {
+  /* Cards & Containers */
+  .stat-card {
+    @apply bg-white rounded-lg shadow-soft border border-primary-100 p-8 transition-all duration-200;
+  }
+  
+  .card {
+    @apply bg-white rounded-lg shadow-soft border border-primary-100;
+  }
+  
+  .card-elevated {
+    @apply bg-white rounded-lg shadow-medium border border-primary-200;
+  }
+  
+  /* Professional Icons */
+  .stat-icon {
+    @apply flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-lg border border-primary-200;
+  }
+  
+  /* Professional Status Badges */
+  .badge {
+    @apply inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold tracking-wide uppercase;
+  }
+  
+  .badge-success {
+    @apply badge bg-success-50 text-success-700 border border-success-200;
+  }
+  
+  .badge-danger {
+    @apply badge bg-danger-50 text-danger-700 border border-danger-200;
+  }
+  
+  .badge-warning {
+    @apply badge bg-warning-50 text-warning-700 border border-warning-200;
+  }
+  
+  .badge-neutral {
+    @apply badge bg-primary-50 text-primary-700 border border-primary-200;
+  }
+  
+  /* Professional Tables */
+  .table-container {
+    @apply bg-white rounded-lg shadow-soft border border-primary-100 overflow-hidden;
+  }
+  
+  .table-header {
+    @apply px-8 py-4 text-left text-xs font-semibold text-primary-700 uppercase tracking-wider bg-primary-50 border-b border-primary-100 cursor-pointer hover:bg-primary-100 transition-colors;
+  }
+  
+  .table-cell {
+    @apply px-8 py-5 text-sm text-primary-900 border-b border-primary-50 last:border-b-0;
+  }
+  
+  .table-row {
+    @apply hover:bg-primary-25 transition-colors;
+  }
+  
+  /* Professional Forms */
+  .form-input {
+    @apply block w-full rounded-lg border border-primary-300 bg-white px-4 py-3 text-sm text-primary-900 placeholder-primary-400 shadow-soft focus:border-accent-600 focus:ring-4 focus:ring-accent-100 focus:outline-none transition-all;
+  }
+  
+  .form-select {
+    @apply form-input pr-12 cursor-pointer;
+  }
+  
+  .form-textarea {
+    @apply form-input resize-none;
+  }
+  
+  .form-label {
+    @apply block text-sm font-medium text-primary-700 mb-2;
+  }
+  
+  .form-error {
+    @apply text-sm text-danger-600 mt-1 font-medium;
+  }
+  
+  /* Professional Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center px-6 py-3 text-sm font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-4;
+  }
+  
+  .btn-primary {
+    @apply btn bg-accent-600 text-white hover:bg-accent-700 focus:ring-accent-100 shadow-soft hover:shadow-medium;
+  }
+  
+  .btn-secondary {
+    @apply btn bg-white text-primary-700 border border-primary-300 hover:bg-primary-50 focus:ring-primary-100 shadow-soft;
+  }
+  
+  .btn-danger {
+    @apply btn bg-danger-600 text-white hover:bg-danger-700 focus:ring-danger-100 shadow-soft hover:shadow-medium;
+  }
+  
+  .btn-ghost {
+    @apply btn bg-transparent text-primary-600 hover:bg-primary-50 focus:ring-primary-100;
+  }
+  
+  /* Professional Toggles */
+  .toggle-container {
+    @apply flex bg-primary-100 rounded-lg p-1 border border-primary-200;
+  }
+  
+  .toggle-button {
+    @apply px-4 py-2 text-sm font-medium rounded-md transition-all duration-200;
+  }
+  
+  .toggle-active {
+    @apply bg-white text-accent-700 shadow-soft border border-primary-200;
+  }
+  
+  .toggle-inactive {
+    @apply text-primary-600 hover:text-primary-800 hover:bg-primary-50;
+  }
+  
+  /* Professional Loading States */
+  .skeleton {
+    @apply bg-primary-100 animate-pulse rounded;
+  }
+  
+  /* Utility Classes */
+  .text-gradient {
+    background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .border-hairline {
+    @apply border-0.5 border-primary-200;
+  }
+  
+  /* Enhanced Focus States */
+  .focus-ring {
+    @apply focus:ring-4 focus:ring-accent-100 focus:border-accent-600 focus:outline-none;
+  }
+}

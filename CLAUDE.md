@@ -10,6 +10,7 @@ All code should be well structured and modular, to allow easy changes and additi
 
 Components
 - The Data Explorer tab allows the user to view the transaction data and filter it.
+- The Rules tab allows the user to create and manage fraud rules to detect fraudulent transactions.
 
 It should be styled as a polished financial analysis SaaS app.
 

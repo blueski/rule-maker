@@ -1,51 +1,6 @@
-import React from 'react'
-import { ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
+import { ChevronUp, ChevronDown, ChevronsUpDown, Loader2 } from 'lucide-react'
+import { formatCellValue, formatHeaderName } from '../utils/dataFormatters.jsx'
 
-const formatCellValue = (value, key) => {
-  if (!value || value === '') return '-'
-  
-  // Format currency amounts
-  if (key.includes('amount') && typeof value === 'string' && value.match(/^\d+\.\d{2}$/)) {
-    return '$' + parseFloat(value).toLocaleString()
-  }
-  
-  // Format boolean values for fraud detection
-  if (key === 'fraud' || key.startsWith('rule_')) {
-    if (value === '1' || value === 'True') {
-      return <span className="badge-danger">Yes</span>
-    }
-    if (value === '0' || value === 'False') {
-      return <span className="badge-success">No</span>
-    }
-  }
-  
-  // Format status values
-  if (key === 'state') {
-    if (value === 'declined') {
-      return <span className="badge-danger">Declined</span>
-    }
-    if (value === 'pending') {
-      return <span className="badge-warning">Pending</span>
-    }
-  }
-  
-  // Truncate long text
-  if (typeof value === 'string' && value.length > 50) {
-    return (
-      <span title={value}>
-        {value.substring(0, 50)}...
-      </span>
-    )
-  }
-  
-  return value
-}
-
-const formatHeaderName = (header) => {
-  return header
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, l => l.toUpperCase())
-}
 
 const getSortIcon = (column, sortConfig) => {
   if (sortConfig.column !== column) {
@@ -56,6 +11,19 @@ const getSortIcon = (column, sortConfig) => {
     : <ChevronDown className="w-4 h-4 text-accent-600" />
 }
 
+/**
+ * DataTable component for displaying paginated, sortable transaction data
+ * @param {Object} props
+ * @param {Array} props.data - Array of data objects to display
+ * @param {boolean} props.loading - Whether data is currently loading
+ * @param {Object} props.sortConfig - Current sort configuration
+ * @param {Function} props.onSort - Handler for sort changes
+ * @param {number} props.currentPage - Current page number
+ * @param {number} props.totalPages - Total number of pages
+ * @param {number} props.totalItems - Total number of items
+ * @param {number} props.pageSize - Number of items per page
+ * @param {Function} props.onPageChange - Handler for page changes
+ */
 const DataTable = ({
   data,
   loading,
@@ -74,7 +42,7 @@ const DataTable = ({
           <h3 className="text-xl font-semibold text-primary-900">Transaction Data</h3>
         </div>
         <div className="flex justify-center items-center py-16">
-          <div className="w-8 h-8 skeleton rounded-full animate-pulse"></div>
+          <Loader2 className="w-6 h-6 text-primary-600 animate-spin" />
           <span className="ml-3 text-primary-600 font-medium">Loading transaction data...</span>
         </div>
       </div>

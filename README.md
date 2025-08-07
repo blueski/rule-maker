@@ -16,9 +16,12 @@ A professional fraud detection analysis platform for credit card transaction dat
 - **Rule Templates**: Duplicate and modify existing rules for efficiency
 - **Persistent Storage**: Rules are saved locally and persist across sessions
 
-### 🔐 Security
+### 🔐 Security & Quality
 - **Authentication Required**: Basic authentication protects access to sensitive financial data
 - **Session Management**: Persistent login state with secure credential validation
+- **Error Boundaries**: Graceful error recovery with detailed debugging information
+- **Comprehensive Testing**: 24+ unit tests covering services and utilities
+- **Error Handling**: Professional user notifications and retry logic
 
 ### 🎨 Professional Design
 - **Financial SaaS Styling**: Black/white contrast design optimized for clarity
@@ -32,6 +35,9 @@ A professional fraud detection analysis platform for credit card transaction dat
 - **Tailwind CSS** - Professional styling with custom design system
 - **Papa Parse** - Efficient CSV data processing
 - **Lucide React** - Modern icon library
+- **Vitest** - Fast unit testing framework
+- **React Testing Library** - Component testing utilities
+- **ESLint** - Code quality and consistency
 
 ## Getting Started
 
@@ -59,9 +65,6 @@ npm run dev
 
 4. Open your browser to `http://localhost:3000`
 
-### Default Login Credentials
-- **Username**: `test`
-- **Password**: `yesiwill`
 
 ## Data Format
 
@@ -79,6 +82,10 @@ Place your CSV data file as `public/data.csv` for automatic loading.
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build locally
 - `npm run lint` - Run ESLint code quality checks
+- `npm run lint:fix` - Auto-fix ESLint issues
+- `npm run test` - Run unit tests
+- `npm run test:watch` - Run tests in watch mode
+- `npm run test:coverage` - Run tests with coverage report
 - `npm run deploy` - Deploy to GitHub Pages
 
 ## Deployment
@@ -100,19 +107,17 @@ npm run deploy
 
 ```
 src/
-├── components/
-│   ├── Header.jsx          # Navigation and tab system
-│   ├── LoginForm.jsx       # Authentication component
-│   ├── StatsCards.jsx      # Dashboard statistics
-│   ├── DataTable.jsx       # Data display and pagination
-│   ├── FilterControls.jsx  # Search and filtering
-│   ├── RulesList.jsx       # Rules management interface
-│   ├── RuleEditor.jsx      # Rule creation/editing
-│   └── FilterRow.jsx       # Dynamic filter building
-├── App.jsx                 # Main application component
-├── index.css              # Global styles and design system
-└── main.jsx               # Application entry point
+├── components/          # React UI components
+├── contexts/           # Global state management (toasts, etc.)
+├── hooks/              # Custom React hooks (useDataTable, useRules)
+├── services/           # Data access layer (API calls, localStorage)
+├── utils/              # Pure utility functions
+└── test/               # Test setup and utilities
 ```
+
+For detailed architecture information and development guidance, see:
+- **[Engineer's Guide](./engineer-intro.md)** - Comprehensive introduction for developers
+- **[Architecture Documentation](./architecture.md)** - Technical architecture details
 
 ## Contributing
 

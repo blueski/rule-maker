@@ -1,5 +1,13 @@
-import React from 'react'
 
+/**
+ * FilterControls component for search and filtering interface
+ * @param {Object} props
+ * @param {string} props.searchTerm - Current search term
+ * @param {string} props.statusFilter - Current status filter
+ * @param {string} props.fraudFilter - Current fraud filter
+ * @param {Function} props.onFilterChange - Handler for filter changes
+ * @param {Function} props.onClearFilters - Handler to clear all filters
+ */
 const FilterControls = ({
   searchTerm,
   statusFilter,

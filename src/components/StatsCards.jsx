@@ -1,4 +1,3 @@
-import React from 'react'
 import { CreditCard, AlertTriangle, Ban, Percent } from 'lucide-react'
 
 const StatCard = ({ icon: Icon, title, value, color, onClick, isActive, isClickable = true }) => (
@@ -22,6 +21,13 @@ const StatCard = ({ icon: Icon, title, value, color, onClick, isActive, isClicka
   </div>
 )
 
+/**
+ * StatsCards component displaying dashboard statistics
+ * @param {Object} props
+ * @param {Object} props.stats - Statistics data
+ * @param {Function} props.onFilterClick - Handler for stat card clicks
+ * @param {Object} props.activeFilters - Currently active filters
+ */
 const StatsCards = ({ stats, onFilterClick, activeFilters }) => {
   const noFiltersActive = !activeFilters.fraud && !activeFilters.status && !activeFilters.search;
   

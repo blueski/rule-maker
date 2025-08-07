@@ -1,5 +1,10 @@
-import React from 'react'
 
+/**
+ * Header component with navigation tabs
+ * @param {Object} props
+ * @param {string} props.activeTab - Currently active tab
+ * @param {Function} props.onTabChange - Handler for tab changes
+ */
 const Header = ({ activeTab, onTabChange }) => {
   return (
     <header className="bg-white shadow-soft border-b border-primary-200">

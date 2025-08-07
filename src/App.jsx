@@ -1,6 +1,4 @@
 import { useState, useEffect, useMemo } from 'react'
-import Papa from 'papaparse'
-import { CreditCard, AlertTriangle, Ban, Percent, RotateCcw } from 'lucide-react'
 import Header from './components/Header'
 import StatsCards from './components/StatsCards'
 import DataTable from './components/DataTable'
@@ -8,245 +6,70 @@ import FilterControls from './components/FilterControls'
 import RulesList from './components/RulesList'
 import RuleEditor from './components/RuleEditor'
 import LoginForm from './components/LoginForm'
+import ErrorBoundary from './components/ErrorBoundary'
+import { DataService } from './services/dataService'
+import { AuthService } from './services/authService'
+import { useDataTable } from './hooks/useDataTable'
+import { useRules } from './hooks/useRules'
+import { useStats } from './hooks/useStats'
+import { ToastProvider, useToast } from './contexts/ToastContext'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [activeTab, setActiveTab] = useState('data-explorer')
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [statusFilter, setStatusFilter] = useState('')
-  const [fraudFilter, setFraudFilter] = useState('')
-  const [currentPage, setCurrentPage] = useState(1)
-  const [sortConfig, setSortConfig] = useState({ column: null, direction: 'asc' })
   
-  // Rules state
-  const [rules, setRules] = useState([])
-  const [showRuleEditor, setShowRuleEditor] = useState(false)
-  const [editingRule, setEditingRule] = useState(null)
+  // Custom hooks
+  const dataTable = useDataTable(data)
+  const rules = useRules()
+  const stats = useStats(data)
   
   const pageSize = 50
+
+  const toast = useToast()
 
   const loadData = async () => {
     try {
       setLoading(true)
-      const response = await fetch('./data.csv')
-      const csvText = await response.text()
-      
-      Papa.parse(csvText, {
-        header: true,
-        skipEmptyLines: true,
-        complete: (results) => {
-          setData(results.data)
-          setLoading(false)
-        },
-        error: (error) => {
-          console.error('Error parsing CSV:', error)
-          setLoading(false)
-        }
-      })
+      const csvData = await DataService.loadCSVData()
+      setData(csvData)
+      setLoading(false)
+      toast.success('Data loaded successfully')
     } catch (error) {
-      console.error('Error loading CSV file:', error)
+      console.error('Error loading data:', error)
+      toast.error('Failed to load transaction data. Please try again.')
       setLoading(false)
     }
   }
 
   useEffect(() => {
     // Check if user was previously authenticated
-    const authStatus = localStorage.getItem('authStatus')
-    if (authStatus === 'authenticated') {
-      setIsAuthenticated(true)
-    }
+    setIsAuthenticated(AuthService.isAuthenticated())
   }, [])
 
   useEffect(() => {
     if (isAuthenticated) {
       loadData()
-      loadRules()
     }
   }, [isAuthenticated])
 
-  // Rules management functions
-  const loadRules = () => {
-    try {
-      const savedRules = localStorage.getItem('fraudDetectionRules')
-      if (savedRules) {
-        setRules(JSON.parse(savedRules))
-      }
-    } catch (error) {
-      console.error('Error loading rules:', error)
-    }
-  }
 
-  const saveRulesToStorage = (updatedRules) => {
-    try {
-      localStorage.setItem('fraudDetectionRules', JSON.stringify(updatedRules))
-      setRules(updatedRules)
-    } catch (error) {
-      console.error('Error saving rules:', error)
-    }
-  }
 
-  const handleCreateRule = () => {
-    setEditingRule(null)
-    setShowRuleEditor(true)
-  }
-
-  const handleEditRule = (rule) => {
-    setEditingRule(rule)
-    setShowRuleEditor(true)
-  }
-
-  const handleDeleteRule = (ruleId) => {
-    const updatedRules = rules.filter(rule => rule.id !== ruleId)
-    saveRulesToStorage(updatedRules)
-  }
-
-  const handleDuplicateRule = (rule) => {
-    const duplicatedRule = {
-      ...rule,
-      id: Date.now().toString(),
-      name: `${rule.name} (Copy)`,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }
-    const updatedRules = [...rules, duplicatedRule]
-    saveRulesToStorage(updatedRules)
-  }
-
-  const handleSaveRule = (ruleData) => {
-    let updatedRules
-    if (editingRule) {
-      updatedRules = rules.map(rule => 
-        rule.id === editingRule.id ? ruleData : rule
-      )
-    } else {
-      updatedRules = [...rules, ruleData]
-    }
-    saveRulesToStorage(updatedRules)
-    setShowRuleEditor(false)
-    setEditingRule(null)
-  }
-
-  const handleCancelRuleEditor = () => {
-    setShowRuleEditor(false)
-    setEditingRule(null)
-  }
-
-  const filteredData = useMemo(() => {
-    let filtered = data.filter(row => {
-      const matchesSearch = !searchTerm || 
-        Object.values(row).some(value => 
-          String(value).toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      
-      const matchesStatus = !statusFilter || row.state === statusFilter
-      const matchesFraud = !fraudFilter || row.fraud === fraudFilter
-      
-      return matchesSearch && matchesStatus && matchesFraud
-    })
-
-    if (sortConfig.column) {
-      filtered.sort((a, b) => {
-        let aVal = a[sortConfig.column]
-        let bVal = b[sortConfig.column]
-        
-        if (!isNaN(aVal) && !isNaN(bVal)) {
-          aVal = parseFloat(aVal)
-          bVal = parseFloat(bVal)
-        }
-        
-        if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1
-        if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1
-        return 0
-      })
-    }
-
-    return filtered
-  }, [data, searchTerm, statusFilter, fraudFilter, sortConfig])
-
-  const paginatedData = useMemo(() => {
-    const startIdx = (currentPage - 1) * pageSize
-    return filteredData.slice(startIdx, startIdx + pageSize)
-  }, [filteredData, currentPage, pageSize])
-
-  const stats = useMemo(() => {
-    const total = data.length
-    const fraudCount = data.filter(row => row.fraud === '1').length
-    const declinedCount = data.filter(row => row.state === 'declined').length
-    const fraudRate = total > 0 ? ((fraudCount / total) * 100).toFixed(2) : 0
-    
-    return {
-      total: total.toLocaleString(),
-      fraudCount: fraudCount.toLocaleString(),
-      declinedCount: declinedCount.toLocaleString(),
-      fraudRate: `${fraudRate}%`
-    }
-  }, [data])
-
-  const handleSort = (column) => {
-    setSortConfig(prev => ({
-      column,
-      direction: prev.column === column && prev.direction === 'asc' ? 'desc' : 'asc'
-    }))
-    setCurrentPage(1)
-  }
-
-  const handleFilterChange = (type, value) => {
-    if (type === 'search') setSearchTerm(value)
-    else if (type === 'status') setStatusFilter(value)
-    else if (type === 'fraud') setFraudFilter(value)
-    setCurrentPage(1)
-  }
-
-  const handleStatCardFilter = (type, value) => {
-    if (type === 'clear') {
-      setSearchTerm('')
-      setStatusFilter('')
-      setFraudFilter('')
-    } else {
-      // Clear all filters first, then set the specific one
-      setSearchTerm('')
-      setStatusFilter('')
-      setFraudFilter('')
-      
-      if (type === 'status') setStatusFilter(value)
-      else if (type === 'fraud') setFraudFilter(value)
-    }
-    setCurrentPage(1)
-  }
-
-  const handleClearFilters = () => {
-    setSearchTerm('')
-    setStatusFilter('')
-    setFraudFilter('')
-    setCurrentPage(1)
-  }
 
   const handleLogin = (status) => {
     setIsAuthenticated(status)
     if (status) {
-      localStorage.setItem('authStatus', 'authenticated')
+      AuthService.login()
     } else {
-      localStorage.removeItem('authStatus')
+      AuthService.logout()
     }
-  }
-
-  const activeFilters = {
-    search: searchTerm,
-    status: statusFilter,
-    fraud: fraudFilter
   }
 
   // Get column names from data for the rule editor
   const columnNames = useMemo(() => {
-    if (data.length > 0) {
-      return Object.keys(data[0])
-    }
-    return []
+    return DataService.getColumnNames(data)
   }, [data])
-
-  const totalPages = Math.ceil(filteredData.length / pageSize)
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -255,39 +78,39 @@ function App() {
           <>
             <StatsCards 
               stats={stats} 
-              onFilterClick={handleStatCardFilter}
-              activeFilters={activeFilters}
+              onFilterClick={dataTable.handleStatCardFilter}
+              activeFilters={dataTable.activeFilters}
             />
             
             <FilterControls
-              searchTerm={searchTerm}
-              statusFilter={statusFilter}
-              fraudFilter={fraudFilter}
-              onFilterChange={handleFilterChange}
-              onClearFilters={handleClearFilters}
+              searchTerm={dataTable.filters.searchTerm}
+              statusFilter={dataTable.filters.statusFilter}
+              fraudFilter={dataTable.filters.fraudFilter}
+              onFilterChange={dataTable.handleFilterChange}
+              onClearFilters={dataTable.handleClearFilters}
             />
             
             <DataTable
-              data={paginatedData}
+              data={dataTable.paginatedData}
               loading={loading}
-              sortConfig={sortConfig}
-              onSort={handleSort}
-              currentPage={currentPage}
-              totalPages={totalPages}
-              totalItems={filteredData.length}
+              sortConfig={dataTable.sortConfig}
+              onSort={dataTable.handleSort}
+              currentPage={dataTable.currentPage}
+              totalPages={dataTable.totalPages}
+              totalItems={dataTable.totalItems}
               pageSize={pageSize}
-              onPageChange={setCurrentPage}
+              onPageChange={dataTable.setCurrentPage}
             />
           </>
         )
       case 'rules':
         return (
           <RulesList
-            rules={rules}
-            onCreateNew={handleCreateRule}
-            onEditRule={handleEditRule}
-            onDeleteRule={handleDeleteRule}
-            onDuplicateRule={handleDuplicateRule}
+            rules={rules.rules}
+            onCreateNew={rules.handleCreateRule}
+            onEditRule={rules.handleEditRule}
+            onDeleteRule={rules.handleDeleteRule}
+            onDuplicateRule={rules.handleDuplicateRule}
           />
         )
       case 'queries':
@@ -302,23 +125,25 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-primary-50">
-      <Header activeTab={activeTab} onTabChange={setActiveTab} />
-      
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {renderTabContent()}
-      </main>
+    <ErrorBoundary>
+      <div className="min-h-screen bg-primary-50">
+        <Header activeTab={activeTab} onTabChange={setActiveTab} />
+        
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          {renderTabContent()}
+        </main>
 
-      {/* Rule Editor Modal */}
-      {showRuleEditor && (
-        <RuleEditor
-          rule={editingRule}
-          columns={columnNames}
-          onSave={handleSaveRule}
-          onCancel={handleCancelRuleEditor}
-        />
-      )}
-    </div>
+        {/* Rule Editor Modal */}
+        {rules.showRuleEditor && (
+          <RuleEditor
+            rule={rules.editingRule}
+            columns={columnNames}
+            onSave={rules.handleSaveRule}
+            onCancel={rules.handleCancelRuleEditor}
+          />
+        )}
+      </div>
+    </ErrorBoundary>
   )
 }
 
